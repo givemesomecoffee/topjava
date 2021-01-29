@@ -34,22 +34,22 @@ public class UserMealsUtil {
         List<UserMealWithExcess> result = new ArrayList<>();
         Boolean excess;
 
-        LocalDate date = meals.get(0).getDateTime().toLocalDate();
-        int totalCalories = 0;
+        LocalDate date = null;
         for (UserMeal meal : meals
         ) {
             if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
                 filteredMeals.add(meal);
             }
-            if (date.equals(meal.getDateTime().toLocalDate())) {
-                totalCalories += meal.getCalories();
-            } else {
-                totalCaloriesPerDate.put(date, totalCalories);
-                totalCalories = meal.getCalories();
-                date = meal.getDateTime().toLocalDate();
-            }
+           date = meal.getDateTime().toLocalDate();
+
+            Integer caloriesPerDate = totalCaloriesPerDate.getOrDefault(date, -1);
+            if (caloriesPerDate == -1)
+                totalCaloriesPerDate.put(date, meal.getCalories());
+            else
+                totalCaloriesPerDate.put(date, meal.getCalories() + totalCaloriesPerDate.get(date));
+
         }
-        totalCaloriesPerDate.put(date, totalCalories);
+
 
 
         for (UserMeal meal : filteredMeals) {
